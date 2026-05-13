@@ -1,0 +1,9 @@
+# Ambiente / artefatos locais (não versionar)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.sqlite3
+.env
+.env.*
+*.zip

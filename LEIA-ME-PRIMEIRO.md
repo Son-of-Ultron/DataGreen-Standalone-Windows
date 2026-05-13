@@ -30,6 +30,19 @@ Se o seu ambiente de desenvolvimento for Linux (ex.: Linux Mint), use o workflow
 2. Abra `Actions` -> `Build Windows Installer` -> `Run workflow`.
 3. Baixe o artefato `datagreen-windows-installer` ao final do build.
 
+**Importante:** o GitHub só empacota o que está **commitado** no repositório. Se o workflow falhar com “arquivo não existe” ou o passo “Verify files required…” listar faltas, faça commit de `backend/`, `dist/public/`, `windows/` e dos `.bat` da raiz, depois `git push`.
+
+```bash
+cd "/caminho/para/DataGreen-Standalone-Windows"
+git add backend/ dist/public/ windows/ Manuais/ .github/ \
+  1-INSTALAR-PRIMEIRA-VEZ.bat 2-INICIAR-DATAGREEN.bat \
+  3-BACKUP-MANUAL.bat 4-TROCAR-SENHA.bat \
+  5-GERAR-INSTALADOR.bat LEIA-ME-PRIMEIRO.md .gitignore
+git status
+git commit -m "Incluir arquivos do app para build do instalador Windows"
+git push
+```
+
 No computador do cliente:
 
 1. Executar `DataGreen_Setup.exe`.

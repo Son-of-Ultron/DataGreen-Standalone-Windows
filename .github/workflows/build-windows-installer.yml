@@ -16,6 +16,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Verify files required by installer exist in repo
+        shell: pwsh
+        run: |
+          $root = $env:GITHUB_WORKSPACE
+          $required = @(
+            "1-INSTALAR-PRIMEIRA-VEZ.bat",
+            "2-INICIAR-DATAGREEN.bat",
+            "3-BACKUP-MANUAL.bat",
+            "4-TROCAR-SENHA.bat",
+            "LEIA-ME-PRIMEIRO.md",
+            "windows/PrimeiraConfiguracao.bat",
+            "windows/datagreen_tray.py",
+            "windows/requirements-launcher.txt",
+            "backend/manage.py",
+            "backend/requirements.txt",
+            "dist/public/index.html"
+          )
+          $missing = @()
+          foreach ($rel in $required) {
+            $p = Join-Path $root $rel.Replace('/', [IO.Path]::DirectorySeparatorChar)
+            if (-not (Test-Path -LiteralPath $p)) { $missing += $rel }
+          }
+          if ($missing.Count -gt 0) {
+            Write-Host "::error::These paths are missing from the GitHub checkout (not committed or wrong branch):"
+            $missing | ForEach-Object { Write-Host "  - $_" }
+            Write-Host ""
+            Write-Host "Root listing (first 40 entries):"
+            Get-ChildItem -LiteralPath $root -ErrorAction SilentlyContinue | Select-Object -First 40 | ForEach-Object { Write-Host $_.Name }
+            exit 1
+          }
+          Write-Host "All required installer inputs present."
+
       - name: Install Inno Setup
         shell: powershell
         run: |
