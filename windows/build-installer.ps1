@@ -5,9 +5,9 @@ param(
 $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$repoRoot = Resolve-Path (Join-Path $scriptDir "..")
+$repoRootPath = (Resolve-Path (Join-Path $scriptDir "..")).Path
 $issPath = Join-Path $scriptDir "installer\DataGreen.iss"
-$releaseDir = Join-Path $repoRoot "release\installer"
+$releaseDir = Join-Path $repoRootPath "release\installer"
 
 if (-not (Test-Path $issPath)) {
     throw "Arquivo Inno Setup não encontrado: $issPath"
@@ -45,8 +45,15 @@ if (-not $iscc) {
     }
 }
 
+$bootstrap = Join-Path $repoRootPath "1-INSTALAR-PRIMEIRA-VEZ.bat"
+if (-not (Test-Path -LiteralPath $bootstrap)) {
+    throw "Arquivo obrigatorio nao encontrado na raiz do repo: $bootstrap (repoRoot=$repoRootPath)"
+}
+
 Write-Host "Compilando instalador com: $iscc" -ForegroundColor Cyan
-& $iscc "/DMyAppVersion=$AppVersion" $issPath
+Write-Host "REPO_ROOT (Inno): $repoRootPath" -ForegroundColor DarkGray
+$repoRootArg = '/DREPO_ROOT="' + $repoRootPath + '"'
+& $iscc $repoRootArg "/DMyAppVersion=$AppVersion" $issPath
 
 if ($LASTEXITCODE -ne 0) {
     throw "Falha ao compilar instalador (exit code $LASTEXITCODE)."
